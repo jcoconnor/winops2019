@@ -14,9 +14,9 @@
 class winops::win_node (
   String $base_node_name,
 ) {
-
+#
   $windows_init_data = @(WINDATA/L)
-    powershell -ExecutionPolicy Unrestricted -Command "$size=(Get-PartitionSupportedSize -DriveLetter C); Resize-Partition -DriveLetter C -Size $size.SizeMax; [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; $webClient = New-Object System.Net.WebClient; $webClient.DownloadFile('https://puppet.winops2019.automationdemos.com:8140/packages/current/install.ps1', 'install.ps1'); .\install.ps1 -PuppetServiceEnsure stopped -PuppetServiceEnable false main:certname=$ENV:ComputerName; New-ItemProperty -Path 'Registry::HKCU\Control Panel\Desktop' -Name 'LogPixels' -Value 120 -PropertyType DWORD -Force; New-ItemProperty -Path 'Registry::HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations' -Name 'IgnoreClientDesktopScaleFactor' -PropertyType DWORD -Value 1 -Force; New-Item -Path 'Registry::HKCU\Software\Microsoft\ServerManager' -Force;  New-ItemProperty -Path 'Registry::HKCU\Software\Microsoft\ServerManager' -Name 'DoNotOpenServerManagerAtLogon' -PropertyType DWORD -Value 1 -Force; Restart-Computer -Force;"
+    powershell -ExecutionPolicy Unrestricted -Command "$size=(Get-PartitionSupportedSize -DriveLetter C); Resize-Partition -DriveLetter C -Size $size.SizeMax; [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; $webClient = New-Object System.Net.WebClient; $webClient.DownloadFile('https://puppet:8140/packages/current/install.ps1', 'install.ps1'); .\install.ps1 -PuppetServiceEnsure stopped -PuppetServiceEnable false main:certname=$ENV:ComputerName; New-ItemProperty -Path 'Registry::HKCU\Control Panel\Desktop' -Name 'LogPixels' -Value 120 -PropertyType DWORD -Force; New-ItemProperty -Path 'Registry::HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations' -Name 'IgnoreClientDesktopScaleFactor' -PropertyType DWORD -Value 1 -Force; New-Item -Path 'Registry::HKCU\Software\Microsoft\ServerManager' -Force;  New-ItemProperty -Path 'Registry::HKCU\Software\Microsoft\ServerManager' -Name 'DoNotOpenServerManagerAtLogon' -PropertyType DWORD -Value 1 -Force; Restart-Computer -Force;"
     | WINDATA
 
   #  Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force; Install-Module -Name WindowsConsoleFonts -Force
@@ -29,6 +29,7 @@ class winops::win_node (
   $vnet             = 'winops2019-vnet'
   $subnet           = 'default'
   $publicip         = "${base_node_name}-publicip"
+  $publicdns         = "${base_node_name}-publicdns"
 
   # Base names for the vm's
   $nic_base_name    = "${base_node_name}-nic"
@@ -69,6 +70,19 @@ class winops::win_node (
       }
     }
   }
+#  azure_record_set { $publicdns:
+#    ensure              => present,
+#    resource_group_name => $rg,
+#    record_type         => 'A',
+#    zone_name           => 'winops2019.automationdemos.com',
+#    parameters          => Create,
+#    properties          => {
+#      ARecords => {
+#        ipv4Address => 'ipv4Address',
+#      },
+#      TTL      => '3600',
+#    }
+#  }
 
   # Create multiple NIC's and VM's
 
@@ -123,7 +137,7 @@ class winops::win_node (
       osProfile       => {
         computerName         => $vm_base_name,
         adminUsername        => 'puppet',
-        adminPassword        => 'Asdfwro235nnsdaf',
+        adminPassword        => 'WinOps2019',
         windowsConfiguration => {
                 provisionVMAgent       => true,
                 enableAutomaticUpdates => true,
