@@ -11,7 +11,7 @@
 #    azure_client_secret
 
 
-class pswsus::mywsus (
+class winops::win_node (
   String $base_node_name,
 ) {
 
@@ -23,10 +23,10 @@ class pswsus::mywsus (
 
   $subscription_id = 'c82736ee-c108-452b-8178-f548c95d18fe'
   $location         = 'uksouth'
-  $rg               = 'psconfeu2'
-  $storage_account  = 'psconfeu2diag'
+  $rg               = 'winops2019'
+  $storage_account  = 'winops2019diag'
   $nsg              = 'psconfeudsc-nsg'
-  $vnet             = 'psconfeu2-vnet'
+  $vnet             = 'winops2019-vnet'
   $subnet           = 'default'
   $publicip         = "${base_node_name}-publicip"
 

@@ -1,8 +1,8 @@
-plan pswsus::mywsus(
+plan winops::win_node(
   String $base_node_name,
 ) {
   apply ('localhost') {
-    class { 'pswsus::mywsus':
+    class { 'winops::win_node':
       base_node_name =>  $base_node_name,
     }
   }
