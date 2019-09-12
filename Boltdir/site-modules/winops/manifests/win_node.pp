@@ -14,10 +14,6 @@
 class winops::win_node (
   String $base_node_name,
 ) {
-#
-  $windows_init_data = @(WINDATA/L)
-    powershell -ExecutionPolicy Unrestricted -Command "$size=(Get-PartitionSupportedSize -DriveLetter C); Resize-Partition -DriveLetter C -Size $size.SizeMax; [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; $webClient = New-Object System.Net.WebClient; $webClient.DownloadFile('https://puppet:8140/packages/current/install.ps1', 'install.ps1'); .\install.ps1 -PuppetServiceEnsure stopped -PuppetServiceEnable false main:certname=$ENV:ComputerName; New-ItemProperty -Path 'Registry::HKCU\Control Panel\Desktop' -Name 'LogPixels' -Value 120 -PropertyType DWORD -Force; New-ItemProperty -Path 'Registry::HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations' -Name 'IgnoreClientDesktopScaleFactor' -PropertyType DWORD -Value 1 -Force; New-Item -Path 'Registry::HKCU\Software\Microsoft\ServerManager' -Force;  New-ItemProperty -Path 'Registry::HKCU\Software\Microsoft\ServerManager' -Name 'DoNotOpenServerManagerAtLogon' -PropertyType DWORD -Value 1 -Force; "
-    | WINDATA
 
   #  Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force; Install-Module -Name WindowsConsoleFonts -Force
 
@@ -126,7 +122,7 @@ class winops::win_node (
         osDisk         => {
           name         => $vm_base_name,
           createOption => 'FromImage',
-          diskSizeGB   => 500,
+          diskSizeGB   => 130,
           caching      => 'None',
           vhd          => {
             uri => "https://${$storage_account}.blob.core.windows.net/${vm_base_name}-container/${vm_base_name}.vhd"
@@ -168,7 +164,8 @@ class winops::win_node (
       type               => 'CustomScriptExtension',
       typeHandlerVersion => '1.9',
       protectedSettings  => {
-        commandToExecute   => $windows_init_data,
+        fileUris         => ['https://winops2019diag.file.core.windows.net/winopsfiles/winops-preinstall.ps1'],
+        commandToExecute => 'powershell -ExecutionPolicy Unrestricted -file winops-preinstall.ps1'
       },
     },
     resource_group_name  => $rg,
