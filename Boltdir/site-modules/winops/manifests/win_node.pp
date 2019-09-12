@@ -164,7 +164,7 @@ class winops::win_node (
       type               => 'CustomScriptExtension',
       typeHandlerVersion => '1.9',
       protectedSettings  => {
-        fileUris         => ['https://winops2019diag.file.core.windows.net/winopsfiles/winops-preinstall.ps1'],
+        fileUris         => ['https://raw.githubusercontent.com/jcoconnor/winops2019/production/Boltdir/site-modules/winops/files/winops-preinstall.ps1'],
         commandToExecute => 'powershell -ExecutionPolicy Unrestricted -file winops-preinstall.ps1'
       },
     },
