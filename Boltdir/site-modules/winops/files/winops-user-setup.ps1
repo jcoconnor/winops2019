@@ -25,15 +25,12 @@ Get-ChildItem ENV:
 # Download git repository
 Set-Location "C:\Users\$ENV:USERNAME" 
 git clone https://github.com/jcoconnor/winops2019
-code winops2019
+#code winops2019
 
 choco install --no-progress --force --yes vscode-puppet
 
 # Registry Settings for account
 New-ItemProperty -Path 'Registry::HKCU\Control Panel\Desktop' -Name 'LogPixels' -Value 120 -PropertyType DWORD -Force
-New-ItemProperty -Path 'Registry::HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations' -Name 'IgnoreClientDesktopScaleFactor' -PropertyType DWORD -Value 1 -Force
-New-Item -Path 'Registry::HKCU\Software\Microsoft\ServerManager' -Force -ErrorAction SilentlyContinue
-New-ItemProperty -Path 'Registry::HKCU\Software\Microsoft\ServerManager' -Name 'DoNotOpenServerManagerAtLogon' -PropertyType DWORD -Value 1 -Force
 
 #Get-Process Explorer | Stop-Process
 
