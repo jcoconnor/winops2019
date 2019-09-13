@@ -49,13 +49,13 @@ class winops::win_node (
 
   range(1,$count).each | $i | {
 
-    # Base names for this instance 
-    $inst_node_name   = "${base_node_name}-${i}"
-    $nic_base_name    = "${inst_node_name}-nic"
-    $vm_base_name     = "${inst_node_name}"
-    $publicip         = "${inst_node_name}-publicip"
-    $publicdns        = "${inst_node_name}-publicdns"
-    $extscript        = "${inst_node_name}-script"
+    # Base names for this instance - pad node number out to 2 digits
+    $inst_node_name = sprintf('%s-%02d', $base_node_name, $i)
+    $nic_base_name  = "${inst_node_name}-nic"
+    $vm_base_name   = "${inst_node_name}"
+    $publicip       = "${inst_node_name}-publicip"
+    $publicdns      = "${inst_node_name}-publicdns"
+    $extscript      = "${inst_node_name}-script"
 
     # Public IP Address
 
