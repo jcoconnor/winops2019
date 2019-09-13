@@ -25,6 +25,9 @@ Get-ChildItem ENV:
 # Download git repository
 Set-Location "C:\Users\$ENV:USERNAME" 
 git clone https://github.com/jcoconnor/winops2019
+code winops2019
+
+choco install --no-progress --force --yes vscode-puppet
 
 # Registry Settings for account
 New-ItemProperty -Path 'Registry::HKCU\Control Panel\Desktop' -Name 'LogPixels' -Value 120 -PropertyType DWORD -Force

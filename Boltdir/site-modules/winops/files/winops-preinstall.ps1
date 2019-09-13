@@ -28,8 +28,8 @@ reg import C:\WinOps2019\winops-user-setup.reg
 
 # Install Chocolatey
 Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-choco install -f -y git
-choco install -f -y poshgit
+choco install --no-progress --force --yes git
+choco install --no-progress --force --yes poshgit
 
 # Install Puppet
 $webClient.DownloadFile("https://puppet:8140/packages/current/install.ps1", "C:\WinOps2019\install.ps1")
@@ -37,10 +37,10 @@ $webClient.DownloadFile("https://puppet:8140/packages/current/install.ps1", "C:\
 
 # Install Remainder of chocolatey packages
 #
-choco install -f -y vscode
-choco install -f -y vscode-puppet
-choco install -f -y googlechrome
-choco install -f -y sysinternals
-choco install -f -y pdk
+choco install --no-progress --force --yes vscode
+# choco install --no-progress --force --yes vscode-puppet
+choco install --no-progress --force --yes googlechrome
+choco install --no-progress --force --yes sysinternals
+choco install --no-progress --force --yes pdk
 
 # All Done !!!!
