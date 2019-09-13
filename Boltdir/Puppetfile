@@ -1,1 +1,2 @@
 mod 'puppetlabs-azure_arm', '0.2.2'
+mod 'puppetlabs-stdlib', '6.0.0'

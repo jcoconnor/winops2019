@@ -29,7 +29,7 @@ class winops::win_node (
 
   # Base names for the vm's
   $nic_base_name    = "${base_node_name}-nic"
-  $vm_base_name     = "${base_node_name}-vm"
+  $vm_base_name     = "${base_node_name}"
 
   # Re-use basic azure resources for the VMs
   azure_resource_group { $rg:
