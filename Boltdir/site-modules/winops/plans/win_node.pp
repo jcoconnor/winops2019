@@ -6,7 +6,22 @@ plan winops::win_node(
   apply ('localhost') {
     class { 'winops::win_node':
       base_node_name =>  $base_node_name,
-      count          => $count
+      count          => $count,
+      phase          => 1,
+    }
+  }
+  apply ('localhost') {
+    class { 'winops::win_node':
+      base_node_name =>  $base_node_name,
+      count          => $count,
+      phase          => 2,
+    }
+  }
+  apply ('localhost') {
+    class { 'winops::win_node':
+      base_node_name =>  $base_node_name,
+      count          => $count,
+      phase          => 3,
     }
   }
 }

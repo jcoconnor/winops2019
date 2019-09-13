@@ -13,7 +13,8 @@
 
 class winops::win_node (
   String $base_node_name,
-  $count = 2
+  Integer $phase,
+  Integer $count = 2,
 ) {
 
 
@@ -59,18 +60,20 @@ class winops::win_node (
 
     # Public IP Address
 
-    azure_public_ip_address { $publicip:
-      location            => $location,
-      resource_group_name => $rg,
-      subscription_id     => $subscription_id,
-      id                  => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/publicIPAddresses/${publicip}", # lint:ignore:140chars
-      parameters          => {
-        idleTimeoutInMinutes => '10',
-      },
-      properties          => {
-        publicIPAllocationMethod => 'Static',
-        dnsSettings              => {
-          domainNameLabel => $vm_base_name,
+    if ($phase >= 1) {
+      azure_public_ip_address { $publicip:
+        location            => $location,
+        resource_group_name => $rg,
+        subscription_id     => $subscription_id,
+        id                  => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/publicIPAddresses/${publicip}", # lint:ignore:140chars
+        parameters          => {
+          idleTimeoutInMinutes => '10',
+        },
+        properties          => {
+          publicIPAllocationMethod => 'Static',
+          dnsSettings              => {
+            domainNameLabel => $vm_base_name,
+          }
         }
       }
     }
@@ -90,95 +93,100 @@ class winops::win_node (
 
     # Create multiple NIC's and VM's
 
-    azure_network_interface { $nic_base_name:
-      ensure              => present,
-      parameters          => {},
-      resource_group_name => $rg,
-      location            => $location,
-      properties          => {
-        ipConfigurations => [{
-          properties => {
-            privateIPAllocationMethod => 'Dynamic',
-            publicIPAddress           => {
-              id         => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/publicIPAddresses/${publicip}", # lint:ignore:140chars
+    if ($phase >= 2) {
+
+      azure_network_interface { $nic_base_name:
+        ensure              => present,
+        parameters          => {},
+        resource_group_name => $rg,
+        location            => $location,
+        properties          => {
+          ipConfigurations => [{
+            properties => {
+              privateIPAllocationMethod => 'Dynamic',
+              publicIPAddress           => {
+                id         => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/publicIPAddresses/${publicip}", # lint:ignore:140chars
+              },
+              subnet                    => {
+                id         => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/virtualNetworks/${vnet}/subnets/${subnet}", # lint:ignore:140chars
+              },
             },
-            subnet                    => {
-              id         => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/virtualNetworks/${vnet}/subnets/${subnet}", # lint:ignore:140chars
-            },
-          },
-          name       => "${inst_node_name}-nic-ipconfig"
-        }]
+            name       => "${inst_node_name}-nic-ipconfig"
+          }]
+        }
       }
     }
 
-    azure_virtual_machine { $vm_base_name:
-      ensure              => 'present',
-      parameters          => {},
-      location            => $location,
-      resource_group_name => $rg,
-      properties          => {
-        hardwareProfile => {
-            vmSize => 'Standard_D2s_v3'
-        },
-        storageProfile  => {
-          imageReference => {
-            publisher => 'MicrosoftWindowsServer',
-            offer     => 'WindowsServer',
-            sku       => '2019-Datacenter',
-            version   => 'latest'
+    if ($phase >= 3) {
+      azure_virtual_machine { $vm_base_name:
+        ensure              => 'present',
+        parameters          => {},
+        location            => $location,
+        resource_group_name => $rg,
+        properties          => {
+          hardwareProfile => {
+              vmSize => 'Standard_D2s_v3'
           },
-          osDisk         => {
-            name         => $vm_base_name,
-            createOption => 'FromImage',
-            diskSizeGB   => 130,
-            caching      => 'None',
-            vhd          => {
-              uri => "https://${$storage_account}.blob.core.windows.net/${vm_base_name}-container/${vm_base_name}.vhd"
-            }
+          storageProfile  => {
+            imageReference => {
+              publisher => 'MicrosoftWindowsServer',
+              offer     => 'WindowsServer',
+              sku       => '2019-Datacenter',
+              version   => 'latest'
+            },
+            osDisk         => {
+              name         => $vm_base_name,
+              createOption => 'FromImage',
+              diskSizeGB   => 130,
+              caching      => 'None',
+              vhd          => {
+                uri => "https://${$storage_account}.blob.core.windows.net/${vm_base_name}-container/${vm_base_name}.vhd"
+              }
+            },
+            dataDisks      => []
           },
-          dataDisks      => []
-        },
-        osProfile       => {
-          computerName         => $vm_base_name,
-          adminUsername        => 'puppet',
-          adminPassword        => 'WinOps2019',
-          windowsConfiguration => {
-                  provisionVMAgent       => true,
-                  enableAutomaticUpdates => true,
+          osProfile       => {
+            computerName         => $vm_base_name,
+            adminUsername        => 'puppet',
+            adminPassword        => 'WinOps2019',
+            windowsConfiguration => {
+                    provisionVMAgent       => true,
+                    enableAutomaticUpdates => true,
+            },
+          },
+          networkProfile  => {
+            networkInterfaces => [
+              {
+                id      => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/networkInterfaces/${nic_base_name}", # lint:ignore:140chars
+                primary => true
+              }]
           },
         },
-        networkProfile  => {
-          networkInterfaces => [
-            {
-              id      => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/networkInterfaces/${nic_base_name}", # lint:ignore:140chars
-              primary => true
-            }]
-        },
-      },
-      type                => 'Microsoft.Compute/virtualMachines',
-    }
+        type                => 'Microsoft.Compute/virtualMachines',
+      }
 
-    # This extension appears to be quite picky in terms of syntax.
-    azure_virtual_machine_extension { $extscript :
-      type                 => 'Microsoft.Compute/virtualMachines/extensions',
-      extension_parameters => '',
-      location             => $location,
-      tags                 => {
-          displayName => "${extscript}",
-      },
-      properties           => {
-        publisher          => 'Microsoft.Compute',
-        type               => 'CustomScriptExtension',
-        typeHandlerVersion => '1.9',
-        protectedSettings  => {
-          fileUris         => ['https://raw.githubusercontent.com/jcoconnor/winops2019/production/Boltdir/site-modules/winops/files/winops-preinstall.ps1'],
-          commandToExecute => 'powershell -ExecutionPolicy Unrestricted -file winops-preinstall.ps1'
+      # This extension appears to be quite picky in terms of syntax.
+      azure_virtual_machine_extension { $extscript :
+        type                 => 'Microsoft.Compute/virtualMachines/extensions',
+        extension_parameters => '',
+        location             => $location,
+        tags                 => {
+            displayName => "${extscript}",
         },
-      },
-      resource_group_name  => $rg,
-      subscription_id      => $subscription_id,
-      vm_extension_name    => $extscript,
-      vm_name              => $vm_base_name,
+        properties           => {
+          publisher          => 'Microsoft.Compute',
+          type               => 'CustomScriptExtension',
+          typeHandlerVersion => '1.9',
+          protectedSettings  => {
+            fileUris         => ['https://raw.githubusercontent.com/jcoconnor/winops2019/production/Boltdir/site-modules/winops/files/winops-preinstall.ps1'],
+            commandToExecute => 'powershell -ExecutionPolicy Unrestricted -file winops-preinstall.ps1'
+          },
+        },
+        resource_group_name  => $rg,
+        subscription_id      => $subscription_id,
+        vm_extension_name    => $extscript,
+        vm_name              => $vm_base_name,
+      }
     }
   }
 
