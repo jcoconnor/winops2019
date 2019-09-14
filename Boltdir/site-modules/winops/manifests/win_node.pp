@@ -62,8 +62,9 @@ class winops::win_node (
 
     # Public IP Address
 
-    if ($phase >= 1) {
+    if (($phase >= 1) or ($phase == -1)) {
       azure_public_ip_address { $publicip:
+        ensure              => $absent_or_present,
         location            => $location,
         resource_group_name => $rg,
         subscription_id     => $subscription_id,
@@ -82,8 +83,7 @@ class winops::win_node (
 
     # Create multiple NIC's and VM's
 
-    if ($phase >= 2) {
-
+    if (($phase >= 2) or ($phase == -2)) {
       azure_network_interface { $nic_base_name:
         ensure              => $absent_or_present,
         parameters          => {},
@@ -106,7 +106,7 @@ class winops::win_node (
       }
     }
 
-    if ($phase >= 3) {
+    if (($phase >= 3) or ($phase == -3)) {
       azure_virtual_machine { $vm_base_name:
         ensure              => $absent_or_present,
         parameters          => {},
@@ -153,7 +153,9 @@ class winops::win_node (
         },
         type                => 'Microsoft.Compute/virtualMachines',
       }
+    }
 
+    if (($phase >= 3) or ($phase == -4)) {  # Can run in parralel for create but has to be deleted first.
       # This extension appears to be quite picky in terms of syntax.
       azure_virtual_machine_extension { $extscript :
         type                 => 'Microsoft.Compute/virtualMachines/extensions',

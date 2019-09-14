@@ -3,25 +3,16 @@ plan winops::win_node_create(
   Optional[Integer] $count = 1,
 ) {
   apply_prep('localhost')
-  apply ('localhost') {
-    class { 'winops::win_node':
-      base_node_name =>  $base_node_name,
-      count          => $count,
-      phase          => 1,
-    }
-  }
-  apply ('localhost') {
-    class { 'winops::win_node':
-      base_node_name =>  $base_node_name,
-      count          => $count,
-      phase          => 2,
-    }
-  }
-  apply ('localhost') {
-    class { 'winops::win_node':
-      base_node_name =>  $base_node_name,
-      count          => $count,
-      phase          => 3,
+  # Apply the win_node class in 3 phases which
+  # allows the network elemtents to initialise
+  # before the vms.
+  range (1,3).each | $i | {
+    apply ('localhost') {
+      class { 'winops::win_node':
+        base_node_name =>  $base_node_name,
+        count          => $count,
+        phase          => $i,
+      }
     }
   }
 
