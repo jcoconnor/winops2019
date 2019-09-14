@@ -1,4 +1,4 @@
-plan winops::win_node(
+plan winops::win_node_create(
   String $base_node_name,
   Optional[Integer] $count = 1,
 ) {
