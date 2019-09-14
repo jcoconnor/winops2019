@@ -24,4 +24,11 @@ plan winops::win_node_create(
       phase          => 3,
     }
   }
+
+  run_task(
+    'winops::win_node_add_dnsrecs',
+    'localhost',
+    base_node_name =>  $base_node_name,
+    count          => $count,
+  )
 }
