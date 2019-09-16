@@ -11,7 +11,7 @@ class role::demo {
   include profile::registry::regentries
 
   # Create some demo users.
-# include profile::users::demousers
+  include profile::users::demousers
 
   # Set the power configuration.
   include profile::power::power
