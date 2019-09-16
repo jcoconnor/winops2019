@@ -40,7 +40,6 @@ $webClient.DownloadFile("https://puppet:8140/packages/current/install.ps1", "C:\
 choco install --no-progress --force --yes vscode
 # choco install --no-progress --force --yes vscode-puppet
 choco install --no-progress --force --yes googlechrome
-choco install --no-progress --force --yes sysinternals
 choco install --no-progress --force --yes pdk
 
 # All Done !!!!
