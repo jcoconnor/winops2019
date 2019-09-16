@@ -1,5 +1,4 @@
-#
-
+# Create a very simple Web Service
 class role::webserver {
   if ($::osfamily == 'windows' ) {
     include ::profile::iis::iisservice
