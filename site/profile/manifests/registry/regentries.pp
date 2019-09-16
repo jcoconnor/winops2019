@@ -1,3 +1,4 @@
+# Create Some Registry Entries
 class profile::registry::regentries {
 
   registry::value { 'registry_test_binary':
