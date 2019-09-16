@@ -4,7 +4,7 @@ class profile::util::gitforwin()
   include chocolatey
 
   package { 'git':
-    ensure            => installed,
-    provider          => 'chocolatey',
+    ensure   => installed,
+    provider => 'chocolatey',
   }
 }

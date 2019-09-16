@@ -4,11 +4,11 @@
 # Sets Path to include the utilities.
 class profile::util::sevenzip()
 {
-   include chocolatey
-   
-   package { '7zip.install':
-    ensure            => installed,
-    provider          => 'chocolatey',
+  include chocolatey
+
+  package { '7zip.install':
+    ensure   => installed,
+    provider => 'chocolatey',
   }
 }
 

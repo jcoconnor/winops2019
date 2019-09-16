@@ -17,7 +17,7 @@ class profile::registry::regentries {
   registry::value { 'registry_test_string':
       key   => 'HKEY_LOCAL_MACHINE\SOFTWARE\PuppetRegDemo',
       value => 'Reg_TestStringValue',
-      data  => 'WinOps 2017 Demonstration',
+      data  => 'WinOps 2019 Workshop',
       type  => 'string'
   }
 }

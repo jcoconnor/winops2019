@@ -1,27 +1,41 @@
-
+# DSC Demo to create some registry entries.
 class profile::dsc::dscaddreg {
-  # requires registry module for Puppet
-  dsc_registry { 'registry_test_binary':
-    dsc_ensure    => 'Present',
-    dsc_key       => 'HKEY_LOCAL_MACHINE\SOFTWARE\PuppetDSCDemo',
-    dsc_valuename => 'Dsc_TestBinaryValue',
-    dsc_valuedata => 'BEEF',
-    dsc_valuetype => 'Binary',
+
+  include profile::dsc::dscbase
+
+  dsc { 'dsc_registry_test_binary':
+    resource_name => 'Registry',
+    module        => 'PSDesiredStateConfiguration',
+    properties    => {
+      ensure    => 'Present',
+      key       => 'HKEY_LOCAL_MACHINE\SOFTWARE\PuppetDSCDemo',
+      valuename => 'Dsc_TestBinaryValue',
+      valuedata => ['BEEF'],
+      valuetype => 'Binary',
+    }
   }
 
-  dsc_registry { 'registry_test_dword':
-    dsc_ensure    => 'Present',
-    dsc_key       => 'HKEY_LOCAL_MACHINE\SOFTWARE\PuppetDSCDemo',
-    dsc_valuename => 'Dsc_TestDwordValue',
-    dsc_valuedata => '42',
-    dsc_valuetype => 'Dword',
+  dsc { 'dsc_registry_test_dword':
+    resource_name => 'Registry',
+    module        => 'PSDesiredStateConfiguration',
+    properties    => {
+      ensure    => 'Present',
+      key       => 'HKEY_LOCAL_MACHINE\SOFTWARE\PuppetDSCDemo',
+      valuename => 'Dsc_TestDwordValue',
+      valuedata => ['42'],
+      valuetype => 'Dword',
+    }
   }
 
-  dsc_registry { 'registry_test_string':
-    dsc_ensure    => 'Present',
-    dsc_key       => 'HKEY_LOCAL_MACHINE\SOFTWARE\PuppetDSCDemo',
-    dsc_valuename => 'Dsc_TestStringValue',
-    dsc_valuedata => 'WinOps 2017 Demonstration (DSC)',
-    dsc_valuetype => 'String',
+  dsc { 'dsc_registry_test_string':
+    resource_name => 'Registry',
+    module        => 'PSDesiredStateConfiguration',
+    properties    => {
+      ensure    => 'Present',
+      key       => 'HKEY_LOCAL_MACHINE\SOFTWARE\PuppetDSCDemo',
+      valuename => 'Dsc_TestStringValue',
+      valuedata => ['WinOps 2019 Workshop (DSC)'],
+      valuetype => 'String',
+    }
   }
 }

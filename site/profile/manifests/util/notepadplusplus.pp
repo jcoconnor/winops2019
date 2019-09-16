@@ -6,8 +6,8 @@ class profile::util::notepadplusplus()
   include chocolatey
 
   package { 'notepadplusplus':
-    ensure            => installed,
-    provider          => 'chocolatey',
+    ensure   => installed,
+    provider => 'chocolatey',
   }
 }
 

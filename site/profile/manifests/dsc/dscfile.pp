@@ -1,17 +1,21 @@
+# DSC Demo to create a file.
 class profile::dsc::dscfile {
 
-  $test_file_contents = 'This file is installed on Desktop for WinOps 2017 Puppet Demo'
+  include profile::dsc::dscbase
 
-  dsc_file {'demo_file':
-    dsc_ensure          => 'present',
-    dsc_type            => 'File',
-    dsc_destinationpath => 'C:/Users/puppet/Desktop/WinOps2017-Demo.txt',
-    dsc_contents        => $test_file_contents,
+  $test_file_contents = 'This file is installed on Desktop for WinOps 2019 Puppet Demo'
 
-    # DSC specific properties
-    dsc_force           => true,
-    dsc_attributes      => ['Archive', 'ReadOnly'],
-    # dsc_credential => { user => 'vagrant', password => 'vagrant' }
+  dsc {'dsc_demo_file':
+    resource_name => 'File',
+    module        => 'PSDesiredStateConfiguration',
+    properties    => {
+      ensure          => 'Present',
+      destinationpath => 'C:\Users\puppet\Desktop\WinOps2019-Demo.txt',
+      type            => 'File',
+      attributes      => ['Archive','Readonly'],
+      contents        => $test_file_contents,
+    }
   }
-
 }
+
+

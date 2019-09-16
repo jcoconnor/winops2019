@@ -5,14 +5,8 @@ class profile::util::sysinternals()
 {
   include chocolatey
 
-  package { 'procexp':
-    ensure            => installed,
-    provider          => 'chocolatey',
+  package { 'sysinternals':
+    ensure   => installed,
+    provider => 'chocolatey',
   }
-
-  package { 'procmon':
-    ensure            => installed,
-    provider          => 'chocolatey',
-  }
-
 }
