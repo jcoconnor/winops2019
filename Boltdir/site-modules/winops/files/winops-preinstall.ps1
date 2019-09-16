@@ -50,18 +50,6 @@ Set-ItemProperty -Path $AdminKey -Name "IsInstalled" -Value 0
 Set-ItemProperty -Path $UserKey -Name "IsInstalled" -Value 0
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
 
-# Stop Windows Update
-
-$WindowsUpdatePath = "HKLM:SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\"
-$AutoUpdatePath = "HKLM:SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
-
-If(Test-Path -Path $WindowsUpdatePath) {
-    Remove-Item -Path $WindowsUpdatePath -Recurse
-}
-Set-ItemProperty -Path $AutoUpdatePath -Name NoAutoUpdate -Value 1
-Set-Service wuauserv -StartupType Disabled
-
-
 # Enable IIS as well.
 
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole
@@ -97,5 +85,16 @@ Enable-WindowsOptionalFeature -Online -FeatureName IIS-ISAPIFilter
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-HttpCompressionStatic
 
 Enable-WindowsOptionalFeature -Online -FeatureName IIS-ASPNET45
+
+# Stop Windows Update
+
+$WindowsUpdatePath = "HKLM:SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\"
+$AutoUpdatePath = "HKLM:SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
+
+If(Test-Path -Path $WindowsUpdatePath) {
+    Remove-Item -Path $WindowsUpdatePath -Recurse
+}
+Set-ItemProperty -Path $AutoUpdatePath -Name NoAutoUpdate -Value 1
+Set-Service wuauserv -StartupType Disabled
 
 # All Done !!!!
