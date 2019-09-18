@@ -97,4 +97,13 @@ If(Test-Path -Path $WindowsUpdatePath) {
 Set-ItemProperty -Path $AutoUpdatePath -Name NoAutoUpdate -Value 1
 Set-Service wuauserv -StartupType Disabled
 
+# Turn off Firewall
+
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+
+# And make sure WinRm is setup
+winrm quickconfig -quiet
+winrm set winrm/config/service/Auth '@{Basic="true"}'
+winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+
 # All Done !!!!
