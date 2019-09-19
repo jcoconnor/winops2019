@@ -114,7 +114,7 @@ class winops::win_node (
         resource_group_name => $rg,
         properties          => {
           hardwareProfile => {
-              vmSize => 'Standard_D2s_v3'
+              vmSize => 'Standard_D4_v3'
           },
           storageProfile  => {
             imageReference => {
