@@ -62,18 +62,11 @@ class profile::wsus::server::wsus_server {
     module        => 'UpdateServicesDsc',
     properties    => {
         ensure                            => 'present',
-        contentdir                        => 'C:\WSUS',
+        contentdir                        => 'F:\WSUS',
         languages                         => ['en'],
         products                          => [
             'Windows 10 LTSB',
             'Windows 10',
-            'Windows 7',
-            'Windows 8.1',
-            'Windows 8',
-            'Windows Server 2008 R2',
-            'Windows Server 2008',
-            'Windows Server 2012 R2',
-            'Windows Server 2012',
             'Windows Server 2016',
             'Windows Server 2019'
         ],
