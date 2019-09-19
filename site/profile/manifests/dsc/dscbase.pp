@@ -16,12 +16,6 @@ class profile::dsc::dscbase {
     source_location => 'https://www.powershellgallery.com/api/v2',
   }
 
-  package { 'xPSDesiredStateConfiguration':
-    ensure   => latest,
-    provider => 'windowspowershell',
-    source   => 'PSGallery',
-  }
-
   package { 'PSDscResources':
     ensure   => latest,
     provider => 'windowspowershell',
