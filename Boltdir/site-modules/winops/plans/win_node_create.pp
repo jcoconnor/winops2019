@@ -6,7 +6,9 @@ plan winops::win_node_create(
   # Apply the win_node class in 3 phases which
   # allows the network elemtents to initialise
   # before the vms.
-  range (1,3).each | $i | {
+  # Repeat Phase 3 as the host create sometimes times out.
+  #
+  [ 1, 2, 3, 3].each | $i | {
     apply ('localhost') {
       class { 'winops::win_node':
         base_node_name =>  $base_node_name,
