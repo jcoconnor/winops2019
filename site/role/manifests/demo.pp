@@ -18,7 +18,4 @@ class role::demo {
 
   # Install Some standard utilities
   include profile::util::util
-
-  # Add WSUS Enforcement - TBD Later as exercise
-  #include ::profile::wsus::wsus
 }
