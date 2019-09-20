@@ -22,9 +22,6 @@ class role::webserver {
   # Set the power configuration.
   include profile::power::power
 
-  # Set the Wallpaper
-  include profile::wallpaper::wallpaper
-
   # Install Some standard utilities
   include profile::util::util
 }
