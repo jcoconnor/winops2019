@@ -17,16 +17,7 @@ class role::demo {
   include profile::power::power
 
   # Install Some standard utilities
-  include profile::util::gitforwin
-  include profile::util::googlechrome
-  include profile::util::notepadplusplus
-  include profile::util::pdk
-  include profile::util::sevenzip
-  include profile::util::sysinternals
-  include profile::util::treesizefree
-  include profile::util::vscode_puppet
-  include profile::util::vscode
-  include profile::util::winscp
+  include profile::util::util
 
   # Add WSUS Enforcement - TBD Later as exercise
   #include ::profile::wsus::wsus
