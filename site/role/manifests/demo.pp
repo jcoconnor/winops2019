@@ -18,4 +18,7 @@ class role::demo {
 
   # Install Some standard utilities
   include profile::util::util
+
+  # Ensure WSUS Is setup
+  include profile::wsus::client::wsus_client
 }
