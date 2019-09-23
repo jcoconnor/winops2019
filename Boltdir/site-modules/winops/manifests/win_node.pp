@@ -159,6 +159,7 @@ class winops::win_node (
       # This extension appears to be quite picky in terms of syntax.
       azure_virtual_machine_extension { $extscript :
         type                 => 'Microsoft.Compute/virtualMachines/extensions',
+        ensure               => $absent_or_present,
         extension_parameters => '',
         location             => $location,
         tags                 => {
