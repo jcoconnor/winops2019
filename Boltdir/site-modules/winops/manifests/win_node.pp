@@ -2,18 +2,10 @@
 # Demo script for quickly spinning up a Linux node 
 # which is auto-classified with role "sample_website"
 # 
-# Prerequisites:
-# 1. install azure_arm module (puppet install puppetlabs/azure_arm)
-# 2. export the following environment variables with proper values for authentication:
-#    azure_subscription_id
-#    azure_tenant_id
-#    azure_client_id
-#    azure_client_secret
 
 
 class winops::win_node (
   String $base_node_name,
-  Integer $phase,
   Integer $count = 2,
   String  $absent_or_present = 'present',
 ) {
@@ -62,126 +54,120 @@ class winops::win_node (
 
     # Public IP Address
 
-    if (($phase >= 1) or ($phase == -1)) {
-      azure_public_ip_address { $publicip:
-        ensure              => $absent_or_present,
-        location            => $location,
-        resource_group_name => $rg,
-        subscription_id     => $subscription_id,
-        id                  => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/publicIPAddresses/${publicip}", # lint:ignore:140chars
-        parameters          => {
-          idleTimeoutInMinutes => '10',
-        },
-        properties          => {
-          publicIPAllocationMethod => 'Static',
-          dnsSettings              => {
-            domainNameLabel => $vm_base_name,
-          }
+    azure_public_ip_address { $publicip:
+      ensure              => $absent_or_present,
+      location            => $location,
+      resource_group_name => $rg,
+      subscription_id     => $subscription_id,
+      id                  => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/publicIPAddresses/${publicip}", # lint:ignore:140chars
+      parameters          => {
+        idleTimeoutInMinutes => '10',
+      },
+      properties          => {
+        publicIPAllocationMethod => 'Static',
+        dnsSettings              => {
+          domainNameLabel => $vm_base_name,
         }
       }
-    }
 
-    # Create multiple NIC's and VM's
-
-    if (($phase >= 2) or ($phase == -2)) {
-      azure_network_interface { $nic_base_name:
-        ensure              => $absent_or_present,
-        parameters          => {},
-        resource_group_name => $rg,
-        location            => $location,
-        properties          => {
-          ipConfigurations => [{
-            properties => {
-              privateIPAllocationMethod => 'Dynamic',
-              publicIPAddress           => {
-                id         => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/publicIPAddresses/${publicip}", # lint:ignore:140chars
-              },
-              subnet                    => {
-                id         => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/virtualNetworks/${vnet}/subnets/${subnet}", # lint:ignore:140chars
-              },
+    } -> azure_network_interface { $nic_base_name:
+      #
+      # Create multiple NIC's and VM's
+      #
+      ensure              => $absent_or_present,
+      parameters          => {},
+      resource_group_name => $rg,
+      location            => $location,
+      properties          => {
+        ipConfigurations => [{
+          properties => {
+            privateIPAllocationMethod => 'Dynamic',
+            publicIPAddress           => {
+              id         => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/publicIPAddresses/${publicip}", # lint:ignore:140chars
             },
-            name       => "${inst_node_name}-nic-ipconfig"
-          }]
-        }
+            subnet                    => {
+              id         => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/virtualNetworks/${vnet}/subnets/${subnet}", # lint:ignore:140chars
+            },
+          },
+          name       => "${inst_node_name}-nic-ipconfig"
+        }]
       }
-    }
 
-    if (($phase >= 3) or ($phase == -3)) {
-      azure_virtual_machine { $vm_base_name:
-        ensure              => $absent_or_present,
-        parameters          => {},
-        location            => $location,
-        resource_group_name => $rg,
-        properties          => {
-          hardwareProfile => {
-              vmSize => 'Standard_D4_v3'
+    } -> azure_virtual_machine { $vm_base_name:
+      #
+      # Create the virtual Machine
+      #
+      ensure              => $absent_or_present,
+      parameters          => {},
+      location            => $location,
+      resource_group_name => $rg,
+      properties          => {
+        hardwareProfile => {
+            vmSize => 'Standard_D4_v3'
+        },
+        storageProfile  => {
+          imageReference => {
+            publisher => 'MicrosoftWindowsServer',
+            offer     => 'WindowsServer',
+            sku       => '2019-Datacenter',
+            version   => 'latest'
           },
-          storageProfile  => {
-            imageReference => {
-              publisher => 'MicrosoftWindowsServer',
-              offer     => 'WindowsServer',
-              sku       => '2019-Datacenter',
-              version   => 'latest'
-            },
-            osDisk         => {
-              name         => $vm_base_name,
-              createOption => 'FromImage',
-              diskSizeGB   => 130,
-              caching      => 'None',
-              vhd          => {
-                uri => "https://${$storage_account}.blob.core.windows.net/${vm_base_name}-container/${vm_base_name}.vhd"
-              }
-            },
-            dataDisks      => []
+          osDisk         => {
+            name         => $vm_base_name,
+            createOption => 'FromImage',
+            diskSizeGB   => 130,
+            caching      => 'None',
+            vhd          => {
+              uri => "https://${$storage_account}.blob.core.windows.net/${vm_base_name}-container/${vm_base_name}.vhd"
+            }
           },
-          osProfile       => {
-            computerName         => $vm_base_name,
-            adminUsername        => 'puppet',
-            adminPassword        => 'WinOps2019',
-            windowsConfiguration => {
-                    provisionVMAgent       => true,
-                    enableAutomaticUpdates => true,
-            },
-          },
-          networkProfile  => {
-            networkInterfaces => [
-              {
-                id      => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/networkInterfaces/${nic_base_name}", # lint:ignore:140chars
-                primary => true
-              }]
+          dataDisks      => []
+        },
+        osProfile       => {
+          computerName         => $vm_base_name,
+          adminUsername        => 'puppet',
+          adminPassword        => 'WinOps2019',
+          windowsConfiguration => {
+                  provisionVMAgent       => true,
+                  enableAutomaticUpdates => true,
           },
         },
-        type                => 'Microsoft.Compute/virtualMachines',
-      }
-    }
+        networkProfile  => {
+          networkInterfaces => [
+            {
+              id      => "/subscriptions/${subscription_id}/resourceGroups/${rg}/providers/Microsoft.Network/networkInterfaces/${nic_base_name}", # lint:ignore:140chars
+              primary => true
+            }]
+        },
+      },
+      type                => 'Microsoft.Compute/virtualMachines',
 
-    if (($phase >= 3) or ($phase == -4)) {  # Can run in parralel for create but has to be deleted first.
-      # This extension appears to be quite picky in terms of syntax.
-      azure_virtual_machine_extension { $extscript :
-        type                 => 'Microsoft.Compute/virtualMachines/extensions',
-        ensure               => $absent_or_present,
-        extension_parameters => '',
-        location             => $location,
-        tags                 => {
-            displayName => "${extscript}",
+    } -> azure_virtual_machine_extension { $extscript :
+      #
+      # Virtual Machine Extension to run a machine customisation scripts.
+      #
+      type                 => 'Microsoft.Compute/virtualMachines/extensions',
+      ensure               => $absent_or_present,
+      extension_parameters => '',
+      location             => $location,
+      tags                 => {
+          displayName => "${extscript}",
+      },
+      properties           => {
+        publisher          => 'Microsoft.Compute',
+        type               => 'CustomScriptExtension',
+        typeHandlerVersion => '1.9',
+        protectedSettings  => {
+          fileUris         => ['https://raw.githubusercontent.com/jcoconnor/winops2019/production/Boltdir/site-modules/winops/files/winops-preinstall.ps1'],
+          commandToExecute => 'powershell -ExecutionPolicy Unrestricted -file winops-preinstall.ps1'
         },
-        properties           => {
-          publisher          => 'Microsoft.Compute',
-          type               => 'CustomScriptExtension',
-          typeHandlerVersion => '1.9',
-          protectedSettings  => {
-            fileUris         => ['https://raw.githubusercontent.com/jcoconnor/winops2019/production/Boltdir/site-modules/winops/files/winops-preinstall.ps1'],
-            commandToExecute => 'powershell -ExecutionPolicy Unrestricted -file winops-preinstall.ps1'
-          },
-        },
-        resource_group_name  => $rg,
-        subscription_id      => $subscription_id,
-        vm_extension_name    => $extscript,
-        vm_name              => $vm_base_name,
-      }
+      },
+      resource_group_name  => $rg,
+      subscription_id      => $subscription_id,
+      vm_extension_name    => $extscript,
+      vm_name              => $vm_base_name,
     }
   }
-
 }
 
 
