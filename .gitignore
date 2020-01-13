@@ -1,3 +1,6 @@
 /Boltdir/modules
 .rerun.json
 
+.terraform/
+.terraform*
+terraform.tfstate*
