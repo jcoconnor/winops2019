@@ -8,8 +8,8 @@ variable "environment" {
     default = "Terraform Demo for Bolt"
 }
 variable "node_count" {
-    default = 2
+    default = 4
 }
 variable "inst_name" {
-    default = "terrabolt"
+    default = "terrapuppet"
 }

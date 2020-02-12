@@ -1,26 +1,3 @@
-# Module Outputs
-
-output "resource_group_name" {
-    value = azurerm_resource_group.myterraformgroup.name
-}
-
-output "subnet_id" {
-    value = azurerm_subnet.myterraformsubnet.id
-}
-
-output "nsg_id" {
-    value = azurerm_network_security_group.myterraformnsg.id
-}
-
-# Create a resource group if it doesn’t exist
-resource "azurerm_resource_group" "myterraformgroup" {
-    name     = "${var.inst_name}-rgroup"
-    location = var.region
-
-    tags = {
-        environment = var.environment
-    }
-}
 
 
 # Create virtual network
@@ -28,7 +5,7 @@ resource "azurerm_virtual_network" "myterraformnetwork" {
     name                = "${var.inst_name}-vnet"
     address_space       = ["10.0.0.0/16"]
     location            = var.region
-    resource_group_name = azurerm_resource_group.myterraformgroup.name
+    resource_group_name = var.resource_group_name
 
     tags = {
         environment = var.environment
@@ -38,7 +15,7 @@ resource "azurerm_virtual_network" "myterraformnetwork" {
 # Create subnet
 resource "azurerm_subnet" "myterraformsubnet" {
     name                 = var.subnet
-    resource_group_name  = azurerm_resource_group.myterraformgroup.name
+    resource_group_name  = var.resource_group_name
     virtual_network_name = azurerm_virtual_network.myterraformnetwork.name
     address_prefix       = "10.0.1.0/24"
 }
@@ -47,7 +24,7 @@ resource "azurerm_subnet" "myterraformsubnet" {
 resource "azurerm_network_security_group" "myterraformnsg" {
     name                = "${var.inst_name}-nsg"
     location            = var.region
-    resource_group_name = azurerm_resource_group.myterraformgroup.name
+    resource_group_name = var.resource_group_name
     
     security_rule {
         name                       = "SSH"
